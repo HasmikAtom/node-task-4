@@ -4,32 +4,37 @@ const http = require('http');
 const fs = require('fs');
 
 const write = (path, data) => {
-  fs.writeFile(path, JSON.stringify(data), function (err) {
+  fs.writeFile(path, JSON.stringify(data, null, '\t'), function (err) {
     if (err) throw err;
   });
 }
 
-const read = (path, cb) => {
-  fs.readFile(path, 'utf8', (err, data) => {
-    if (err) throw err;
-    cb(data)
+const read = (path) => {
+  return new Promise ((resolve, reject) => {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) return reject(err);
+      return resolve(data)
+    })
   })
 }
 
-const readBody = (request, cb) => {
-  let body = [];
-  request.on('error', (err) => {
-    console.error(err);
-  }).on('data', (chunk) => {
-    body.push(chunk);
-  }).on('end', () => {
-    body = Buffer.concat(body).toString();
-    cb(body)
+const readBody = (request) => {
+  return new Promise ((resolve, reject) => {
+    let body = [];
+    request.on('error', (err) => {
+      console.error(err);
+    }).on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => {
+      body = Buffer.concat(body).toString();
+      return resolve(body)
+    })
   })
 }
 
-const getTweet = (request, response, type) => {
-  read('tweets.json', (data) => {
+const apiGetTweet = (request, response, type) => {
+  return read('tweets.json').
+  then((data) => {
     if (type === 'ALL'){
       response.writeHead(200, {"Content-Type": "application/json"});
       response.end(data.toString())
@@ -37,7 +42,7 @@ const getTweet = (request, response, type) => {
     else if (type === 'SINGLE'){
       const id = request.url.split('/')[3]
       let found = false
-      if(data.toString()){
+      if(data){
         let currentData = JSON.parse(data.toString())
         currentData.tweets.forEach((tweet) => {
           if (tweet.id == id){
@@ -54,15 +59,18 @@ const getTweet = (request, response, type) => {
       }
     }
   })
+  .catch((err) => console.log('ERROR OCCURRED', err))
 }
 
-const modifyTweet = (request, response, type) => {
-  readBody(request, (bodyData) => {
+const apiModifyTweet = (request, response, type) => {
+  return readBody(request)
+  .then((bodyData) => {
     const id = request.url.split('/')[3]
-    read('tweets.json', (data) => {
+    return read('tweets.json')
+    .then((data) => {
       let found = false
       let newData = []
-      if(data.toString()){
+      if(data){
         let currentData = JSON.parse(data.toString())
         currentData.tweets.forEach((tweet) => {
           if (tweet.id != id){
@@ -87,15 +95,18 @@ const modifyTweet = (request, response, type) => {
       response.end(`tweet with id ${id} not found!`)
     })
   })
+  .catch((err) => console.log('ERROR OCCURRED', err))
 }
 
-const addTweets = (request, response) => {
-  readBody(request, (body) => {
+const apiAddTweets = (request, response) => {
+  return readBody(request)
+  .then((body) => {
     let bodyJSON = JSON.parse(body)
     bodyJSON.forEach((tweet) => {
       tweet.id = Math.floor(Math.random() * 999999999)
     })
-    read('tweets.json', (data) => {
+    return read('tweets.json')
+    .then((data) => {
       if(!data.toString()){ //file empty
         let tweets = {}
         tweets.tweets = bodyJSON
@@ -111,12 +122,14 @@ const addTweets = (request, response) => {
       response.end(`received:\n${body}`)
     })
   })
+  .catch((err) => console.log('ERROR OCCURRED', err))
 }
 
-const showAllTweets = (request, response) => {
+const webShowAllTweets = (request, response) => {
   let found = false
   let buildHTML = '<html><body><ul>'
-  read('tweets.json', (data) => {
+  return read('tweets.json')
+  .then((data) => {
     if (data.toString()){
       found = true
       JSON.parse(data).tweets.forEach((tweet) => {
@@ -129,11 +142,12 @@ const showAllTweets = (request, response) => {
   })
 }
 
-const showOneTweet = (request, response) => {
+const webShowOneTweet = (request, response) => {
   const id = request.url.split('/')[1]
   let found = false
   let buildHTML = '<html><body><p>'
-  read('tweets.json', (data) => {
+  return read('tweets.json')
+  .then((data) => {
     if (data.toString()){
       JSON.parse(data).tweets.forEach((tweet) => {
         if (tweet.id == id){
@@ -146,31 +160,36 @@ const showOneTweet = (request, response) => {
     buildHTML += '</p></body></html>'
     response.end(buildHTML)
   })
+  .catch((err) => console.log('ERROR OCCURRED', err))
 }
 
 http.createServer((request, response) => {
   const { headers, method, url } = request
 
   if (url === '/api/tweets' && method === 'POST'){
-    addTweets(request, response)
+    apiAddTweets(request, response)
   }
   else if (url === '/api/tweets' && method === 'GET'){
-    getTweet(request, response, 'ALL')
+    apiGetTweet(request, response, 'ALL')
   }
-  else if (url.startsWith('/api/tweets/') && method === 'GET'){
-    getTweet(request, response, 'SINGLE')
-  }
-  else if (url.startsWith('/api/tweets/') && method === 'DELETE'){
-    modifyTweet(request, response, 'DELETE')
-  }
-  else if (url.startsWith('/api/tweets/') && method === 'PUT'){
-    modifyTweet(request, response, 'EDIT')
+  else if (url.startsWith('/api/tweets/')){
+    switch(method){
+      case 'GET':
+        apiGetTweet(request, response, 'SINGLE')
+        break;
+      case 'DELETE':
+        apiModifyTweet(request, response, 'DELETE')
+        break;
+      case 'PUT':
+        apiModifyTweet(request, response, 'EDIT')
+        break;
+    }
   }
   else if (url === '/' && method === 'GET'){
-    showAllTweets(request, response)
+    webShowAllTweets(request, response)
   }
   else if(method === 'GET'){
-    showOneTweet(request, response)
+    webShowOneTweet(request, response)
   }
   else {
     response.statusCode = 400
