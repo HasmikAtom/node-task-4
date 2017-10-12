@@ -4,10 +4,12 @@ const Utils = require('./utils')
 const Database = {};
 module.exports = Database;
 
+const tweetsDB = 'tweets.json'
+
 Database.write = (path, data) => {
-  fs.writeFile(path, JSON.stringify(data, null, '\t'), function (err) {
-    if (err) throw err;
-  });
+    fs.writeFile(path, JSON.stringify(data, null, '\t'), function (err) {
+      if (err) throw err;
+  })
 }
 
 Database.read = (path) => {
@@ -20,32 +22,29 @@ Database.read = (path) => {
 }
 
 Database.apiGetOneTweet = (request, response) => {
-  return Database.read('tweets.json')
+  return Database.read(tweetsDB)
   .then((data) => {
     const id = request.url.split('/')[3]
     if(data){
+      let foundTweet = ''
       let currentData = JSON.parse(data.toString())
       currentData.tweets.forEach((tweet) => {
         if (tweet.id == id){
-          response.writeHead(200, {"Content-Type": "application/json"});
-          response.end(JSON.stringify(tweet))
+          foundTweet = JSON.stringify(tweet)
         }
       })
-      response.statusCode = 404
-      response.end(`tweet with id ${id} not found!`)
+      return foundTweet
     }
-
   })
-  .catch((err) => console.log('ERROR OCCURRED', err))
+  .catch((err) => console.log({err}))
 }
 
 Database.apiGetAllTweets = (request, response) => {
-  return Database.read('tweets.json')
+  return Database.read(tweetsDB)
   .then((data) => {
-      response.writeHead(200, {"Content-Type": "application/json"});
-      response.end(data.toString())
+    return data
   })
-  .catch((err) => console.log('ERROR OCCURRED', err))
+  .catch((err) => console.log({err}))
 }
 
 Database.apiUpdateTweet = (request, response) => {
@@ -53,7 +52,7 @@ Database.apiUpdateTweet = (request, response) => {
   const id = request.url.split('/')[3]
   return Utils.readBody(request)
   .then((body) => localBody = body)
-  .then(() => Database.read('tweets.json'))
+  .then(() => Database.read(tweetsDB))
   .then((data) => {
     let found = false
     if(data){
@@ -63,26 +62,23 @@ Database.apiUpdateTweet = (request, response) => {
           return true
         } else {
           found = true
-          tweet.tweet = JSON.parse(localBody)[0].tweet
-          tweet.user = JSON.parse(localBody)[0].user
+          Object.assign(tweet, JSON.parse(localBody)[0])
           return true
         }
       })
 
       if(found){
-        Database.write('tweets.json', currentData)
-        response.writeHead(200, {"Content-Type": "application/json"});
-        response.end(`{"message": "Successfully updated tweet ${id}"}`)
+        Database.write(tweetsDB, currentData)
       }
+      return found
     }
-    response.end(`tweet with id ${id} not found!`)
   })
-  .catch((err) => console.log('ERROR OCCURRED', err))
+  .catch((err) => console.log({err}))
 }
 
 Database.apiDeleteTweet = (request, response) => {
   const id = request.url.split('/')[3]
-  return Database.read('tweets.json')
+  return Database.read(tweetsDB)
   .then((data) => {
       let found = false
       if(data){
@@ -97,14 +93,12 @@ Database.apiDeleteTweet = (request, response) => {
         })
 
         if(found){
-          Database.write('tweets.json', currentData)
-          response.writeHead(200, {"Content-Type": "application/json"});
-          response.end(`{"message": "Successfully deleted tweet ${id}"}`)
+          Database.write(tweetsDB, currentData)
         }
+        return found
       }
-      response.end(`tweet with id ${id} not found!`)
     })
-  .catch((err) => console.log('ERROR OCCURRED', err))
+    .catch((err) => console.log({err}))
 }
 
 Database.apiAddTweets = (request, response) => {
@@ -117,29 +111,26 @@ Database.apiAddTweets = (request, response) => {
     })
     localBody = bodyJSON
   })
-  .then( () => Database.read('tweets.json'))
+  .then( () => Database.read(tweetsDB))
   .then((data) => {
     if(!data.toString()){ //file empty
       let tweets = {}
       tweets.tweets = localBody
-      Database.write('tweets.json', tweets)
+      Database.write(tweetsDB, tweets)
     }
     else{ //file has content
       let currentData = JSON.parse(data.toString())
       currentData.tweets = currentData.tweets.concat(localBody)
-      Database.write('tweets.json', currentData)
+      Database.write(tweetsDB, currentData)
     }
-
-    response.statusCode = 200
-    response.end(`received data`)
   })
-  .catch((err) => console.log('ERROR OCCURRED', err))
+  .catch((err) => console.log({err}))
 }
 
 Database.webShowAllTweets = (request, response) => {
   let found = false
   let buildHTML = '<html><body><ul>'
-  return Database.read('tweets.json')
+  return Database.read(tweetsDB)
   .then((data) => {
     if (data.toString()){
       found = true
@@ -151,13 +142,14 @@ Database.webShowAllTweets = (request, response) => {
     buildHTML += '</ul></body></html>'
     response.end(buildHTML)
   })
+  .catch((err) => console.log({err}))
 }
 
 Database.webShowOneTweet = (request, response) => {
   const id = request.url.split('/')[1]
   let found = false
   let buildHTML = '<html><body><p>'
-  return Database.read('tweets.json')
+  return Database.read(tweetsDB)
   .then((data) => {
     if (data.toString()){
       JSON.parse(data).tweets.forEach((tweet) => {
@@ -171,5 +163,5 @@ Database.webShowOneTweet = (request, response) => {
     buildHTML += '</p></body></html>'
     response.end(buildHTML)
   })
-  .catch((err) => console.log('ERROR OCCURRED', err))
+  .catch((err) => console.log({err}))
 }
