@@ -3,7 +3,12 @@
 const http = require('http');
 
 const Handlers = require('./handlers')
+const Utils = require('./utils')
 
 http.createServer((request, response) => {
-  Handlers.handleEndpoints(request, response)
-}).listen(8080); // Activates this server, listening on port 8080.
+  return Handlers.handleEndpoints(request, response)
+  .catch((err) => {
+    console.log({err})
+    Utils.badRequestResponse(response, err)
+  })
+}).listen(8080);

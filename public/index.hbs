@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tweets homepage</title>
+    <style>
+      #myForm {
+        padding: 20px;
+        width: 500px;
+      }
+      .tweet {
+        padding-left: 10px;
+        width: 500px;
+      }
+      form {
+        display: inline-block;
+      }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  </head>
+  <body>
+    <form method="post" id="myForm">
+      <div class="form-group">
+        <label for="user">User</label>
+        <input type="text" class="form-control" name="user" id="user" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="textarea">Tweet</label>
+        <textarea class="form-control" id="textarea" placeholder="Enter tweet" name="tweet"></textarea>
+      </div>
+      <input type="submit" class="btn btn-primary" value="Submit">
+    </form>
+    <hr>
+      {{#each tweets}}
+        <div class="tweet">
+          <p>
+            <b>{{this.user}}</b>
+          </p>
+          <p>{{this.tweet}}</p>
+          <form class="" action="/delete/{{this.id}}" method="post">
+            <input type="submit" class="btn btn-danger btn-sm" value="Delete tweet">
+          </form>
+          <form class="" action="/update/{{this.id}}" method="post">
+            <input type="text"  name="text" id="user" placeholder="New text">
+            <input type="submit" class="btn btn-info btn-sm" value="Update tweet">
+          </form>
+        <hr>
+      </div>
+
+      {{/each}}
+  </body>
+</html>

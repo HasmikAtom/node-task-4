@@ -1,64 +1,39 @@
 {
 	"tweets": [
 		{
-			"tweet": "I like Ghost =0!",
-			"user": "Jon Snow",
-			"id": 360582688
+			"id": 708818941,
+			"user": "Donald J. Trump",
+			"tweet": "The current tax code is a burden on American taxpayers & harmful to job-creators. Americans need #TaxReform!"
 		},
 		{
-			"tweet": "I am the dragon mother",
-			"user": "whitehairlady",
-			"id": 763444066
+			"id": 186390418,
+			"user": "Bill Gates",
+			"tweet": "Science can make the world a better place – but only if we work together."
 		},
 		{
-			"tweet": "bend",
-			"user": "Dany",
-			"id": 546234115
+			"id": 585146304,
+			"user": "Elon Musk",
+			"tweet": "Tesla Semi truck unveil & test ride tentatively scheduled for Oct 26th in Hawthorne. Worth seeing this beast in person. It's unreal."
 		},
 		{
-			"tweet": "no",
-			"user": "Jon",
-			"id": 611300967
+			"id": 547332678,
+			"user": "SpaceX",
+			"tweet": "Falcon 9 first stage has landed on Of Course I Still Love You — third successful mission with a flight-proven orbital class rocket."
 		},
 		{
-			"tweet": "I like dragons",
-			"user": "johnsnow",
-			"id": 771164644
+			"id": 12167898,
+			"user": "Elon Musk",
+			"tweet": "Officially verified as the first production electric car to exceed 1000km on a single charge! Congratulations Tesla Owners Italia!!"
 		},
 		{
-			"tweet": "I am the dragon mother",
-			"user": "whitehairlady",
-			"id": 977514159
+			"id": 320317099,
+			"user": "Tesla",
+			"tweet": "Tesla Model X is the first SUV ever to receive a 5-Star safety rating in every category"
 		},
 		{
-			"tweet": "bend",
-			"user": "Dany",
-			"id": 170342709
-		},
-		{
-			"tweet": "no",
-			"user": "Jon",
-			"id": 74679714
-		},
-		{
-			"tweet": "I like dragons",
-			"user": "johnsnow",
-			"id": 960465007
-		},
-		{
-			"tweet": "I am the dragon mother",
-			"user": "whitehairlady",
-			"id": 973737126
-		},
-		{
-			"tweet": "bend",
-			"user": "Dany",
-			"id": 617057015
-		},
-		{
-			"tweet": "no",
-			"user": "Jon",
-			"id": 665885683
+			"id": 624756632,
+			"user": "Steve Wozniak",
+			"tweet": "Catch me speaking about disruptive change on 21 Nov 2017 at the 13th WIEF in Kuching, Sarawak, Malaysia"
 		}
 	]
 }

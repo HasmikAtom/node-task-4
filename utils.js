@@ -44,10 +44,20 @@ Utils.responseUpdate = (response, id) => {
 
 Utils.responseTweetNotFound = (response, id) => {
   response.writeHead(404, {"Content-Type": "application/json"});
-  response.end(`{"message": "Tweet with id ${id} not found!"}`)
+  response.end(`Tweet with id ${id} not found!`)
 };
 
-Utils.badRequestResponse = (response,err) => {
+Utils.responseWebShowAllTweets = (response, html) => {
+  response.writeHead(200, {"Content-Type": "text/html"});
+  response.end(html)
+}
+
+Utils.responseWebShowOneTweet = (response, html) => {
+  response.writeHead(200, {"Content-Type": "text/html"});
+  response.end(html)
+}
+
+Utils.badRequestResponse = (response, err) => {
     response.writeHead(400);
-    response.end(err)
+    response.end(err.message)
 };
